@@ -1,20 +1,28 @@
 library(shiny)
+install.packages("e1071")
+install.packages("caret")
+library("caret")
 
-# Define server logic required to draw a histogram
 shinyServer(function(input, output) {
+  output$text1 <- renderText({
+    
+    # Get the shooting history of the selected player
+    temp1 <- input$playerId
+    personId <- uniquePlayerNames[uniquePlayerNames$Name==temp1,]$Person_id
+    shots <- rbind(shotSummary15[shotSummary15$PERSON_ID==personId,], shotSummary16[shotSummary16$PERSON_ID==personId,])
+    x <- shots[,c(15,19)]
+    y <- shots[,10]
+    
+    # Use a Naive Bayes Net with 10x Cross Validation to check
+    model = train(x,y,'nb',trControl=trainControl(method='cv',number=10))
+    
+    # Use rest of input to predict probability of making the shot
+    z <- x[1,1:2]
+    z[1] <- input$shotDist
+    z[2] <- input$closeDefDist
+    
+    # Output
+    paste(predict(model$finalModel,z))
 
-  # Expression that generates a histogram. The expression is
-  # wrapped in a call to renderPlot to indicate that:
-  #
-  #  1) It is "reactive" and therefore should re-execute automatically
-  #     when inputs change
-  #  2) Its output type is a plot
-
-  output$distPlot <- renderPlot({
-    x    <- faithful[, 2]  # Old Faithful Geyser data
-    bins <- seq(min(x), max(x), length.out = input$bins + 1)
-
-    # draw the histogram with the specified number of bins
-    hist(x, breaks = bins, col = 'darkgray', border = 'white')
   })
 })

@@ -1,21 +1,24 @@
 library(shiny)
 
-# Define UI for application that draws a histogram
 shinyUI(fluidPage(
 
-  # Application title
   titlePanel("Shot Predictor"),
 
-  # Sidebar with a slider input for the number of bins
   sidebarLayout(
+    # Possible Inputs
     sidebarPanel(
-      selectInput("playerId", label = h3("Player"),
-        names(data()))
+      selectInput('playerId', 'Player Name', players ),      
+      numericInput("shotDist", label = h3("Shot Distance"),
+                   value = 15),
+      numericInput("closeDefDist", label = h3("Closest Defender"),
+                   value = 5),
+      
+      submitButton(text = "Submit")
     ), 
 
-    # Show a plot of the generated distribution
+    # Output
     mainPanel(
-      img(src="HalfCourt.jpeg")
+      textOutput("text1")
     )
   )
 ))
